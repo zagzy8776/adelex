@@ -151,22 +151,31 @@ export default function Home() {
 
   const animateCounters = () => {
     const counters = document.querySelectorAll(".counter-number");
-    counters.forEach((counter) => {
+    counters.forEach((counter, index) => {
       const target = parseFloat(counter.getAttribute("data-target") || "0");
       const decimals = parseInt(counter.getAttribute("data-decimals") || "0", 10);
       const suffix = counter.getAttribute("data-suffix") || "";
-      const duration = 2000;
-      const start = performance.now();
+      const duration = 2400;
+      const delay = index * 120;
+      const startAt = performance.now() + delay;
 
       const tick = (now: number) => {
-        const progress = Math.min((now - start) / duration, 1);
-        // easeOutCubic
-        const eased = 1 - Math.pow(1 - progress, 3);
+        if (now < startAt) {
+          requestAnimationFrame(tick);
+          return;
+        }
+        const progress = Math.min((now - startAt) / duration, 1);
+        // smooth easeOutExpo for a premium feel
+        const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
         const value = target * eased;
-        counter.textContent =
-          (decimals > 0 ? value.toFixed(decimals) : Math.floor(value).toString()) +
-          suffix;
-        if (progress < 1) requestAnimationFrame(tick);
+        const display =
+          decimals > 0 ? value.toFixed(decimals) : Math.floor(value).toString();
+        counter.textContent = display + suffix;
+        if (progress < 1) {
+          requestAnimationFrame(tick);
+        } else {
+          counter.classList.add("count-done");
+        }
       };
       requestAnimationFrame(tick);
     });
@@ -367,39 +376,40 @@ export default function Home() {
             <div className="stats-cards">
               <article className="stat-card" style={{ animationDelay: "0.1s" }}>
                 <div className="stat-icon">
-                  <Award size={28} strokeWidth={1.6} />
+                  <Award size={30} strokeWidth={1.6} />
                 </div>
-                <h3>
-                  <span className="counter-number" data-target="12" data-suffix="">0</span>{" "}
-                  Years
-                </h3>
+                <div className="stat-value">
+                  <span className="counter-number" data-target="12" data-suffix="">0</span>
+                </div>
+                <h3>Years</h3>
                 <p>Of trusted logistics expertise</p>
               </article>
               <article className="stat-card" style={{ animationDelay: "0.2s" }}>
                 <div className="stat-icon">
-                  <Globe2 size={28} strokeWidth={1.6} />
+                  <Globe2 size={30} strokeWidth={1.6} />
                 </div>
-                <h3>
-                  <span className="counter-number" data-target="202" data-suffix="">0</span>{" "}
-                  Countries
-                </h3>
+                <div className="stat-value">
+                  <span className="counter-number" data-target="202" data-suffix="">0</span>
+                </div>
+                <h3>Countries</h3>
                 <p>Worldwide coverage</p>
               </article>
               <article className="stat-card" style={{ animationDelay: "0.3s" }}>
                 <div className="stat-icon">
-                  <Users size={28} strokeWidth={1.6} />
+                  <Users size={30} strokeWidth={1.6} />
                 </div>
-                <h3>Elite Team</h3>
+                <div className="stat-value static">Elite</div>
+                <h3>Team</h3>
                 <p>Industry-leading professionals</p>
               </article>
               <article className="stat-card" style={{ animationDelay: "0.4s" }}>
                 <div className="stat-icon">
-                  <TrendingUp size={28} strokeWidth={1.6} />
+                  <TrendingUp size={30} strokeWidth={1.6} />
                 </div>
-                <h3>
-                  <span className="counter-number" data-target="99.8" data-decimals="1" data-suffix="%">0</span>{" "}
-                  On-Time
-                </h3>
+                <div className="stat-value">
+                  <span className="counter-number" data-target="99.8" data-decimals="1" data-suffix="%">0</span>
+                </div>
+                <h3>On-Time</h3>
                 <p>Delivery success rate</p>
               </article>
             </div>
@@ -609,23 +619,27 @@ export default function Home() {
             </div>
             <div className="about-stats" ref={statsRef}>
               <div className="about-stat-card animate-stat" style={{ animationDelay: '0.1s' }}>
-                <Award size={36} strokeWidth={1.5} />
-                <strong><span className="counter-number" data-target="12">0</span> Years</strong>
+                <Award size={28} strokeWidth={1.5} />
+                <strong className="about-stat-value"><span className="counter-number" data-target="12" data-suffix="">0</span></strong>
+                <em>Years</em>
                 <span>Of trusted logistics expertise</span>
               </div>
               <div className="about-stat-card animate-stat" style={{ animationDelay: '0.2s' }}>
-                <Globe2 size={36} strokeWidth={1.5} />
-                <strong><span className="counter-number" data-target="202">0</span> Countries</strong>
+                <Globe2 size={28} strokeWidth={1.5} />
+                <strong className="about-stat-value"><span className="counter-number" data-target="202" data-suffix="">0</span></strong>
+                <em>Countries</em>
                 <span>Worldwide coverage</span>
               </div>
               <div className="about-stat-card animate-stat" style={{ animationDelay: '0.3s' }}>
-                <Users size={36} strokeWidth={1.5} />
-                <strong>Elite Team</strong>
+                <Users size={28} strokeWidth={1.5} />
+                <strong className="about-stat-value static">Elite</strong>
+                <em>Team</em>
                 <span>Industry-leading professionals</span>
               </div>
               <div className="about-stat-card animate-stat" style={{ animationDelay: '0.4s' }}>
-                <TrendingUp size={36} strokeWidth={1.5} />
-                <strong><span className="counter-number" data-target="99">0</span>.8% On-Time</strong>
+                <TrendingUp size={28} strokeWidth={1.5} />
+                <strong className="about-stat-value"><span className="counter-number" data-target="99.8" data-decimals="1" data-suffix="%">0</span></strong>
+                <em>On-Time</em>
                 <span>Delivery success rate</span>
               </div>
             </div>
