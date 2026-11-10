@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import * as React from "react";
 import {
   ArrowUpRight,
   ArrowRight,
@@ -125,6 +126,50 @@ const gallery = [
 ];
 
 export default function Home() {
+  const [hasAnimated, setHasAnimated] = React.useState(false);
+  const statsRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !hasAnimated) {
+            setHasAnimated(true);
+            animateCounters();
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+
+    if (statsRef.current) {
+      observer.observe(statsRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [hasAnimated]);
+
+  const animateCounters = () => {
+    const counters = document.querySelectorAll('.counter-number');
+    counters.forEach((counter) => {
+      const target = parseInt(counter.getAttribute('data-target') || '0');
+      const duration = 2000;
+      const increment = target / (duration / 16);
+      let current = 0;
+
+      const updateCounter = () => {
+        current += increment;
+        if (current < target) {
+          counter.textContent = Math.floor(current).toString();
+          requestAnimationFrame(updateCounter);
+        } else {
+          counter.textContent = target.toString();
+        }
+      };
+      updateCounter();
+    });
+  };
+
   const scrollReviews = (direction: 'left' | 'right') => {
     const track = document.querySelector('.reviews-track') as HTMLElement;
     if (track) {
@@ -541,25 +586,25 @@ export default function Home() {
                 From small parcels to large-scale cargo, we handle each shipment with the same level of care and professionalism. Our global network, advanced tracking systems, and dedicated support team work together to deliver not just packages, but peace of mind.
               </p>
             </div>
-            <div className="about-stats">
-              <div className="about-stat-card">
+            <div className="about-stats" ref={statsRef}>
+              <div className="about-stat-card animate-stat" style={{ animationDelay: '0.1s' }}>
                 <Award size={36} strokeWidth={1.5} />
-                <strong>12 Years</strong>
+                <strong><span className="counter-number" data-target="12">0</span> Years</strong>
                 <span>Of trusted logistics expertise</span>
               </div>
-              <div className="about-stat-card">
+              <div className="about-stat-card animate-stat" style={{ animationDelay: '0.2s' }}>
                 <Globe2 size={36} strokeWidth={1.5} />
-                <strong>202 Countries</strong>
+                <strong><span className="counter-number" data-target="202">0</span> Countries</strong>
                 <span>Worldwide coverage</span>
               </div>
-              <div className="about-stat-card">
+              <div className="about-stat-card animate-stat" style={{ animationDelay: '0.3s' }}>
                 <Users size={36} strokeWidth={1.5} />
                 <strong>Elite Team</strong>
                 <span>Industry-leading professionals</span>
               </div>
-              <div className="about-stat-card">
+              <div className="about-stat-card animate-stat" style={{ animationDelay: '0.4s' }}>
                 <TrendingUp size={36} strokeWidth={1.5} />
-                <strong>99.8% On-Time</strong>
+                <strong><span className="counter-number" data-target="99">0</span>.8% On-Time</strong>
                 <span>Delivery success rate</span>
               </div>
             </div>
