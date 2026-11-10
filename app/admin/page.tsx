@@ -1151,66 +1151,124 @@ function ShipmentForm({
             {error}
           </div>
         )}
-        <div className="form-grid">
-          <Label
-            name="recipientName"
-            defaultValue={initial?.recipientName}
-            required
-            minLength={2}
-            maxLength={160}
-          >
-            Recipient name
-          </Label>
-          <Label
-            name="recipientEmail"
-            defaultValue={initial?.recipientEmail}
-            type="email"
-            maxLength={180}
-          >
-            Recipient email for tracking updates
-          </Label>
-          <Label
-            name="recipientPhone"
-            defaultValue={initial?.recipientPhone}
-            type="tel"
-            maxLength={40}
-          >
-            Recipient phone
-          </Label>
-          <label>
-            Service
-            <select name="service" defaultValue={initial?.service}>
-              {services.map((s) => (
-                <option key={s}>{s}</option>
-              ))}
-            </select>
-          </label>
-          <PlacePicker
-            name="origin"
-            label="Pickup"
-            value={origin}
-            onChange={setOrigin}
-            onPosition={(lat, lng) =>
-              setCoords((c) => ({
-                ...c,
-                originLat: String(lat),
-                originLng: String(lng),
-              }))
-            }
-          />
-          <PlacePicker
-            name="destination"
-            label="Destination"
-            value={destination}
-            onChange={setDestination}
-            onPosition={(lat, lng) =>
-              setCoords((c) => ({
-                ...c,
-                destinationLat: String(lat),
-                destinationLng: String(lng),
-              }))
-            }
-          />
+        
+        {/* Sender Information Section */}
+        <div className="form-section">
+          <h3>📤 Sender Information</h3>
+          <div className="form-grid">
+            <Label
+              name="senderName"
+              defaultValue={initial?.senderName}
+              required
+              minLength={2}
+              maxLength={160}
+            >
+              Sender name
+            </Label>
+            <Label
+              name="senderEmail"
+              defaultValue={initial?.senderEmail}
+              type="email"
+              maxLength={180}
+            >
+              Sender email
+            </Label>
+            <Label
+              name="senderPhone"
+              defaultValue={initial?.senderPhone}
+              type="tel"
+              maxLength={40}
+            >
+              Sender phone
+            </Label>
+            <Label
+              name="senderAddress"
+              defaultValue={initial?.senderAddress}
+              maxLength={300}
+            >
+              Sender address
+            </Label>
+          </div>
+        </div>
+
+        {/* Recipient Information Section */}
+        <div className="form-section">
+          <h3>📥 Recipient Information</h3>
+          <div className="form-grid">
+            <Label
+              name="recipientName"
+              defaultValue={initial?.recipientName}
+              required
+              minLength={2}
+              maxLength={160}
+            >
+              Recipient name
+            </Label>
+            <Label
+              name="recipientEmail"
+              defaultValue={initial?.recipientEmail}
+              type="email"
+              maxLength={180}
+            >
+              Recipient email (for tracking updates)
+            </Label>
+            <Label
+              name="recipientPhone"
+              defaultValue={initial?.recipientPhone}
+              type="tel"
+              maxLength={40}
+            >
+              Recipient phone
+            </Label>
+            <Label
+              name="recipientAddress"
+              defaultValue={initial?.recipientAddress}
+              maxLength={300}
+            >
+              Recipient address
+            </Label>
+          </div>
+        </div>
+
+        {/* Shipment Details */}
+        <div className="form-section">
+          <h3>📦 Shipment Details</h3>
+          <div className="form-grid">
+            <label>
+              Service
+              <select name="service" defaultValue={initial?.service}>
+                {services.map((s) => (
+                  <option key={s}>{s}</option>
+                ))}
+              </select>
+            </label>
+            <PlacePicker
+              name="origin"
+              label="Pickup"
+              value={origin}
+              onChange={setOrigin}
+              onPosition={(lat, lng) =>
+                setCoords((c) => ({
+                  ...c,
+                  originLat: String(lat),
+                  originLng: String(lng),
+                }))
+              }
+            />
+            <PlacePicker
+              name="destination"
+              label="Destination"
+              value={destination}
+              onChange={setDestination}
+              onPosition={(lat, lng) =>
+                setCoords((c) => ({
+                  ...c,
+                  destinationLat: String(lat),
+                  destinationLng: String(lng),
+                }))
+              }
+            />
+          </div>
         </div>
         <div className="form-section">
           <div className="row spread" style={{ marginBottom: 12 }}>

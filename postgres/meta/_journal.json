@@ -15,6 +15,13 @@
       "when": 1794208207185,
       "tag": "0001_dashing_the_renegades",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794359400000,
+      "tag": "0002_add_sender_recipient_address",
+      "breakpoints": true
     }
   ]
 }

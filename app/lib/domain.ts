@@ -34,9 +34,16 @@ const optionalEmail = z.union([
 ]);
 const date = z.union([z.literal(""), z.string().datetime()]);
 export const shipmentSchema = z.object({
+  // Sender information
+  senderName: line,
+  senderEmail: optionalEmail.default(""),
+  senderPhone: z.string().trim().max(40).default(""),
+  senderAddress: z.string().trim().max(300).default(""),
+  // Recipient information
   recipientName: line,
   recipientEmail: optionalEmail.default(""),
   recipientPhone: z.string().trim().max(40).default(""),
+  recipientAddress: z.string().trim().max(300).default(""),
   description: z.string().trim().min(2).max(1000),
   service: z.enum(services),
   origin: line,
@@ -101,7 +108,14 @@ export type ShipmentEvent = {
 };
 export type PublicShipment = Omit<
   Shipment,
-  "recipientName" | "recipientEmail" | "recipientPhone"
+  | "recipientName"
+  | "recipientEmail"
+  | "recipientPhone"
+  | "recipientAddress"
+  | "senderName"
+  | "senderEmail"
+  | "senderPhone"
+  | "senderAddress"
 >;
 export type BusinessSettings = z.infer<typeof settingsSchema>;
 export function publicShipment(s: Record<string, unknown>) {

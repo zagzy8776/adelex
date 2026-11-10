@@ -17,9 +17,16 @@ export const shipments = logistics.table(
   {
     id: text("id").primaryKey(),
     code: text("code").notNull().unique(),
+    // Sender information
+    senderName: text("sender_name").notNull().default(""),
+    senderEmail: text("sender_email").notNull().default(""),
+    senderPhone: text("sender_phone").notNull().default(""),
+    senderAddress: text("sender_address").notNull().default(""),
+    // Recipient information
     recipientName: text("recipient_name").notNull(),
     recipientEmail: text("recipient_email").notNull().default(""),
     recipientPhone: text("recipient_phone").notNull().default(""),
+    recipientAddress: text("recipient_address").notNull().default(""),
     description: text("description").notNull(),
     service: text("service").notNull(),
     origin: text("origin").notNull(),
