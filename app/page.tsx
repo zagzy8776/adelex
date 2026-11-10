@@ -144,13 +144,6 @@ export default function Home() {
 
     if (statsRef.current) {
       observer.observe(statsRef.current);
-      // Once a card's entrance animation finishes, drop it so the hover
-      // transform/transition can take over (animations otherwise override transforms).
-      statsRef.current.querySelectorAll<HTMLElement>(".stat-card").forEach((card) => {
-        card.addEventListener("animationend", (event) => {
-          if (event.target === card) card.classList.add("revealed");
-        });
-      });
     }
 
     return () => observer.disconnect();
@@ -162,8 +155,8 @@ export default function Home() {
       const target = parseFloat(counter.getAttribute("data-target") || "0");
       const decimals = parseInt(counter.getAttribute("data-decimals") || "0", 10);
       const suffix = counter.getAttribute("data-suffix") || "";
-      const duration = 2600;
-      const delay = index * 140;
+      const duration = 2000;
+      const delay = index * 80;
       const startAt = performance.now() + delay;
 
       const tick = (now: number) => {
@@ -172,30 +165,13 @@ export default function Home() {
           return;
         }
         const progress = Math.min((now - startAt) / duration, 1);
-        // Ease-out-back: counts up with a subtle spring overshoot for a premium feel.
-        const c1 = 1.20158;
-        const c3 = c1 + 1;
-        const eased = Math.max(
-          1 + c3 * Math.pow(progress - 1, 3) + c1 * Math.pow(progress - 1, 2),
-          0
-        );
+        // Gentle ease-out for a smooth, professional count-up.
+        const eased = 1 - Math.pow(1 - progress, 3);
         const value = target * eased;
         const display =
           decimals > 0 ? value.toFixed(decimals) : Math.floor(value).toString();
         counter.textContent = display + suffix;
-
-        if (progress < 1) {
-          requestAnimationFrame(tick);
-        } else {
-          // Settle exactly on the target, then celebrate with a pulse.
-          counter.textContent =
-            (decimals > 0 ? target.toFixed(decimals) : Math.round(target).toString()) +
-            suffix;
-          if (counter.closest(".stats-showcase")) {
-            counter.classList.add("counter-done");
-            window.setTimeout(() => counter.classList.remove("counter-done"), 900);
-          }
-        }
+        if (progress < 1) requestAnimationFrame(tick);
       };
       requestAnimationFrame(tick);
     });
@@ -394,7 +370,7 @@ export default function Home() {
         <section className="stats-showcase" ref={statsRef}>
           <div className="wrap">
             <div className="stats-cards">
-              <article className="stat-card" data-icon="award" style={{ animationDelay: "0.1s" }}>
+              <article className="stat-card" style={{ animationDelay: "0.1s" }}>
                 <div className="stat-icon">
                   <Award size={28} strokeWidth={1.6} />
                 </div>
@@ -404,7 +380,7 @@ export default function Home() {
                 </h3>
                 <p>Of trusted logistics expertise</p>
               </article>
-              <article className="stat-card" data-icon="globe" style={{ animationDelay: "0.2s" }}>
+              <article className="stat-card" style={{ animationDelay: "0.2s" }}>
                 <div className="stat-icon">
                   <Globe2 size={28} strokeWidth={1.6} />
                 </div>
@@ -414,7 +390,7 @@ export default function Home() {
                 </h3>
                 <p>Worldwide coverage</p>
               </article>
-              <article className="stat-card" data-icon="team" style={{ animationDelay: "0.3s" }}>
+              <article className="stat-card" style={{ animationDelay: "0.3s" }}>
                 <div className="stat-icon">
                   <Users size={28} strokeWidth={1.6} />
                 </div>
@@ -423,7 +399,7 @@ export default function Home() {
                 </h3>
                 <p>Industry-leading professionals</p>
               </article>
-              <article className="stat-card" data-icon="trend" style={{ animationDelay: "0.4s" }}>
+              <article className="stat-card" style={{ animationDelay: "0.4s" }}>
                 <div className="stat-icon">
                   <TrendingUp size={28} strokeWidth={1.6} />
                 </div>
