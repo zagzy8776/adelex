@@ -1,5 +1,4 @@
 "use client";
-import { useState } from "react";
 import * as React from "react";
 import {
   ArrowUpRight,
@@ -25,6 +24,87 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { Header, Footer, TrackingForm, Assurance } from "./components/Shell";
+
+type AnimatedCounterProps = {
+  end: number;
+  duration?: number;
+  decimals?: number;
+  suffix?: string;
+  className?: string;
+};
+
+// Scroll-triggered count-up: entering the viewport starts a requestAnimationFrame
+// loop that runs to completion on its own. Scrolling only triggers it once and
+// never drives the speed or progress, so counting keeps moving after scrolling stops.
+function AnimatedCounter({
+  end,
+  duration = 3000,
+  decimals = 0,
+  suffix = "",
+  className,
+}: AnimatedCounterProps) {
+  const ref = React.useRef<HTMLSpanElement>(null);
+  const [count, setCount] = React.useState(0);
+  const [visible, setVisible] = React.useState(false);
+
+  React.useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.2 }
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  React.useEffect(() => {
+    if (!visible) return;
+
+    const prefersReducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (prefersReducedMotion) {
+      setCount(end);
+      return;
+    }
+
+    let frame: number;
+    let start: number | undefined;
+
+    const animate = (timestamp: number) => {
+      if (start === undefined) start = timestamp;
+      const progress = Math.min((timestamp - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(end * eased);
+      if (progress < 1) {
+        frame = requestAnimationFrame(animate);
+      }
+    };
+
+    frame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frame);
+  }, [visible, end, duration]);
+
+  return (
+    <span
+      ref={ref}
+      className={className}
+      style={{ fontVariantNumeric: "tabular-nums" }}
+    >
+      {count.toFixed(decimals)}
+      {suffix}
+    </span>
+  );
+}
 
 const reviews = [
   {
@@ -126,57 +206,6 @@ const gallery = [
 ];
 
 export default function Home() {
-  const [hasAnimated, setHasAnimated] = React.useState(false);
-  const statsRef = React.useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !hasAnimated) {
-            setHasAnimated(true);
-            animateCounters();
-          }
-        });
-      },
-      { threshold: 0.3 }
-    );
-
-    if (statsRef.current) {
-      observer.observe(statsRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [hasAnimated]);
-
-  const animateCounters = () => {
-    const counters = document.querySelectorAll(".counter-number");
-    counters.forEach((counter, index) => {
-      const target = parseFloat(counter.getAttribute("data-target") || "0");
-      const decimals = parseInt(counter.getAttribute("data-decimals") || "0", 10);
-      const suffix = counter.getAttribute("data-suffix") || "";
-      const duration = 2000;
-      const delay = index * 80;
-      const startAt = performance.now() + delay;
-
-      const tick = (now: number) => {
-        if (now < startAt) {
-          requestAnimationFrame(tick);
-          return;
-        }
-        const progress = Math.min((now - startAt) / duration, 1);
-        // Gentle ease-out for a smooth, professional count-up.
-        const eased = 1 - Math.pow(1 - progress, 3);
-        const value = target * eased;
-        const display =
-          decimals > 0 ? value.toFixed(decimals) : Math.floor(value).toString();
-        counter.textContent = display + suffix;
-        if (progress < 1) requestAnimationFrame(tick);
-      };
-      requestAnimationFrame(tick);
-    });
-  };
-
   const scrollReviews = (direction: 'left' | 'right') => {
     const track = document.querySelector('.reviews-track') as HTMLElement;
     if (track) {
@@ -367,7 +396,7 @@ export default function Home() {
           </p>
         </section>
 
-        <section className="stats-showcase" ref={statsRef}>
+        <section className="stats-showcase">
           <div className="wrap">
             <div className="stats-cards">
               <article className="stat-card" style={{ animationDelay: "0.1s" }}>
@@ -375,7 +404,7 @@ export default function Home() {
                   <Award size={28} strokeWidth={1.6} />
                 </div>
                 <h3>
-                  <span className="counter-number" data-target="12">0</span>
+                  <AnimatedCounter className="counter-number" end={12} duration={2500} />
                   <span className="stat-label"> Years</span>
                 </h3>
                 <p>Of trusted logistics expertise</p>
@@ -385,7 +414,7 @@ export default function Home() {
                   <Globe2 size={28} strokeWidth={1.6} />
                 </div>
                 <h3>
-                  <span className="counter-number" data-target="202">0</span>
+                  <AnimatedCounter className="counter-number" end={202} duration={3500} />
                   <span className="stat-label"> Countries</span>
                 </h3>
                 <p>Worldwide coverage</p>
@@ -404,7 +433,7 @@ export default function Home() {
                   <TrendingUp size={28} strokeWidth={1.6} />
                 </div>
                 <h3>
-                  <span className="counter-number" data-target="99.8" data-decimals="1" data-suffix="%">0</span>
+                  <AnimatedCounter className="counter-number" end={99.8} decimals={1} suffix="%" duration={3000} />
                   <span className="stat-label"> On-Time</span>
                 </h3>
                 <p>Delivery success rate</p>
@@ -614,15 +643,15 @@ export default function Home() {
                 From small parcels to large-scale cargo, we handle each shipment with the same level of care and professionalism. Our global network, advanced tracking systems, and dedicated support team work together to deliver not just packages, but peace of mind.
               </p>
             </div>
-            <div className="about-stats" ref={statsRef}>
+            <div className="about-stats">
               <div className="about-stat-card animate-stat" style={{ animationDelay: '0.1s' }}>
                 <Award size={28} strokeWidth={1.5} />
-                <strong><span className="counter-number" data-target="12">0</span> Years</strong>
+                <strong><AnimatedCounter className="counter-number" end={12} duration={2500} /> Years</strong>
                 <span>Of trusted logistics expertise</span>
               </div>
               <div className="about-stat-card animate-stat" style={{ animationDelay: '0.2s' }}>
                 <Globe2 size={28} strokeWidth={1.5} />
-                <strong><span className="counter-number" data-target="202">0</span> Countries</strong>
+                <strong><AnimatedCounter className="counter-number" end={202} duration={3500} /> Countries</strong>
                 <span>Worldwide coverage</span>
               </div>
               <div className="about-stat-card animate-stat" style={{ animationDelay: '0.3s' }}>
@@ -632,7 +661,7 @@ export default function Home() {
               </div>
               <div className="about-stat-card animate-stat" style={{ animationDelay: '0.4s' }}>
                 <TrendingUp size={28} strokeWidth={1.5} />
-                <strong><span className="counter-number" data-target="99.8" data-decimals="1" data-suffix="%">0</span> On-Time</strong>
+                <strong><AnimatedCounter className="counter-number" end={99.8} decimals={1} suffix="%" duration={3000} /> On-Time</strong>
                 <span>Delivery success rate</span>
               </div>
             </div>
