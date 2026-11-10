@@ -1,3 +1,5 @@
+"use client";
+import { useState } from "react";
 import {
   ArrowUpRight,
   ArrowRight,
@@ -12,8 +14,58 @@ import {
   Globe2,
   Clock3,
   Headphones,
+  Mail,
+  Phone,
+  Facebook,
+  Twitter,
+  Linkedin,
+  Instagram,
+  Star,
+  ChevronLeft,
+  ChevronRight,
+  Award,
+  Users,
+  TrendingUp,
 } from "lucide-react";
 import { Header, Footer, TrackingForm, Assurance } from "./components/Shell";
+
+const reviews = [
+  {
+    name: "Sarah Mitchell",
+    company: "Tech Innovations Ltd",
+    rating: 5,
+    text: "ADEXEC has been our trusted logistics partner for over 3 years. Their real-time tracking and professional service have made international shipping effortless for our business.",
+    location: "London, UK",
+  },
+  {
+    name: "Marcus Chen",
+    company: "Global Trade Solutions",
+    rating: 5,
+    text: "Outstanding service from start to finish. The team handled our time-sensitive cargo with precision and kept us informed every step of the way. Highly recommended!",
+    location: "Singapore",
+  },
+  {
+    name: "Elena Rodriguez",
+    company: "Artisan Exports",
+    rating: 5,
+    text: "Professional, reliable, and efficient. ADEXEC's expertise in handling delicate shipments across multiple countries is unmatched. They've never let us down.",
+    location: "Barcelona, Spain",
+  },
+  {
+    name: "James Thompson",
+    company: "Manufacturing Pro Inc",
+    rating: 5,
+    text: "We ship heavy machinery worldwide and ADEXEC handles everything seamlessly. Their ocean freight service is top-notch with competitive rates and excellent communication.",
+    location: "Houston, USA",
+  },
+  {
+    name: "Priya Sharma",
+    company: "E-commerce Solutions",
+    rating: 5,
+    text: "Fast, reliable, and cost-effective. ADEXEC's express delivery service has helped us meet tight deadlines consistently. Their customer support is exceptional.",
+    location: "Mumbai, India",
+  },
+];
 
 const serviceList = [
   {
@@ -77,8 +129,46 @@ const gallery = [
 ];
 
 export default function Home() {
+  const scrollReviews = (direction: 'left' | 'right') => {
+    const track = document.querySelector('.reviews-track') as HTMLElement;
+    if (track) {
+      const scrollAmount = direction === 'left' ? -440 : 440;
+      track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
   return (
     <>
+      {/* Top Contact Bar */}
+      <div className="top-contact-bar">
+        <div className="wrap contact-bar-inner">
+          <div className="contact-info">
+            <a href="mailto:hello@adexec.com" className="contact-item">
+              <Mail size={16} />
+              hello@adexec.com
+            </a>
+            <a href="tel:+15625216164" className="contact-item">
+              <Phone size={16} />
+              +1 (562) 521-6164
+            </a>
+          </div>
+          <div className="social-links">
+            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+              <Facebook size={18} />
+            </a>
+            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+              <Twitter size={18} />
+            </a>
+            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+              <Linkedin size={18} />
+            </a>
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+              <Instagram size={18} />
+            </a>
+          </div>
+        </div>
+      </div>
+      
       <Header />
       <main>
         <section className="hero">
@@ -424,6 +514,128 @@ export default function Home() {
                 <p>{a}</p>
               </details>
             ))}
+          </div>
+        </section>
+
+        {/* About Us Section */}
+        <section className="about-section">
+          <div className="wrap about-grid">
+            <div className="about-content">
+              <span className="eyebrow">04 / ABOUT ADEXEC</span>
+              <h2>
+                12 years of excellence.
+                <br />
+                202 countries covered.
+              </h2>
+              <p>
+                We have worked in the expedited delivery business for the past 12 years, building a reputation for reliability and precision across 202 countries worldwide. Our success is built on a foundation of expertise, trust, and an unwavering commitment to your satisfaction.
+              </p>
+              <p>
+                We bring with us a core group of managers and delivery professionals that are second to none in the business community. Our team combines decades of logistics experience with cutting-edge technology to ensure your shipments arrive safely, on time, every time.
+              </p>
+              <p>
+                From small parcels to large-scale cargo, we handle each shipment with the same level of care and professionalism. Our global network, advanced tracking systems, and dedicated support team work together to deliver not just packages, but peace of mind.
+              </p>
+            </div>
+            <div className="about-stats">
+              <div className="about-stat-card">
+                <Award size={36} strokeWidth={1.5} />
+                <strong>12 Years</strong>
+                <span>Of trusted logistics expertise</span>
+              </div>
+              <div className="about-stat-card">
+                <Globe2 size={36} strokeWidth={1.5} />
+                <strong>202 Countries</strong>
+                <span>Worldwide coverage</span>
+              </div>
+              <div className="about-stat-card">
+                <Users size={36} strokeWidth={1.5} />
+                <strong>Elite Team</strong>
+                <span>Industry-leading professionals</span>
+              </div>
+              <div className="about-stat-card">
+                <TrendingUp size={36} strokeWidth={1.5} />
+                <strong>99.8% On-Time</strong>
+                <span>Delivery success rate</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Customer Reviews Section */}
+        <section className="reviews-section">
+          <div className="wrap">
+            <div className="section-heading">
+              <div>
+                <span className="eyebrow">TRUSTED BY BUSINESSES WORLDWIDE</span>
+                <h2>
+                  What our clients
+                  <br />
+                  are saying.
+                </h2>
+              </div>
+              <p>
+                Real feedback from real businesses.
+                <br className="desktop-only" />
+                See why companies trust ADEXEC for their shipping needs.
+              </p>
+            </div>
+            <div className="reviews-carousel">
+              <button 
+                className="carousel-nav prev" 
+                aria-label="Previous review"
+                onClick={() => scrollReviews('left')}
+              >
+                <ChevronLeft size={24} />
+              </button>
+              <div className="reviews-track">
+                {reviews.map((review, i) => (
+                  <div className="review-card" key={i}>
+                    <div className="review-stars">
+                      {[...Array(review.rating)].map((_, j) => (
+                        <Star key={j} size={18} fill="#ed8a2e" stroke="#ed8a2e" />
+                      ))}
+                    </div>
+                    <p className="review-text">"{review.text}"</p>
+                    <div className="review-author">
+                      <div>
+                        <strong>{review.name}</strong>
+                        <span>{review.company}</span>
+                        <span className="review-location">{review.location}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <button 
+                className="carousel-nav next" 
+                aria-label="Next review"
+                onClick={() => scrollReviews('right')}
+              >
+                <ChevronRight size={24} />
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* Newsletter Section */}
+        <section className="newsletter-section">
+          <div className="wrap newsletter-content">
+            <div className="newsletter-text">
+              <h2>Subscribe to our newsletter</h2>
+              <p>Focused on the transport and logistic industry. Get the latest updates, tips, and exclusive offers.</p>
+            </div>
+            <form className="newsletter-form">
+              <input
+                type="email"
+                placeholder="Enter your email"
+                required
+                aria-label="Email address"
+              />
+              <button type="submit" className="button orange">
+                Subscribe
+              </button>
+            </form>
           </div>
         </section>
 
