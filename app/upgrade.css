@@ -118,6 +118,22 @@
   background: #fff4e8;
   color: #ef8b2c;
 }
+/* Ambient motion: gentle float + soft breathing glow on the stat icons */
+.stats-showcase .stat-card .stat-icon {
+  will-change: transform;
+  animation:
+    statFloat 6s ease-in-out infinite,
+    statHalo 5s ease-in-out infinite;
+}
+.stats-showcase .stat-card:nth-child(2) .stat-icon {
+  animation-delay: -1.5s, -1.2s;
+}
+.stats-showcase .stat-card:nth-child(3) .stat-icon {
+  animation-delay: -3s, -2.4s;
+}
+.stats-showcase .stat-card:nth-child(4) .stat-icon {
+  animation-delay: -4.5s, -3.6s;
+}
 .stat-card h3 {
   font-family: Manrope, Arial, sans-serif;
   font-size: 26px;
@@ -160,6 +176,28 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+@keyframes statFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+@keyframes statHalo {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(239, 139, 44, 0),
+      0 0 14px rgba(239, 139, 44, 0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 0 6px rgba(239, 139, 44, 0.05),
+      0 0 26px rgba(239, 139, 44, 0.22);
   }
 }
 
@@ -238,9 +276,14 @@
 
 /* Respect reduced-motion preferences: render stats statically */
 @media (prefers-reduced-motion: reduce) {
-  .stats-showcase .stat-card {
+  .stats-showcase .stat-card,
+  .stats-showcase .stat-card .stat-icon {
     animation: none;
     opacity: 1;
     transform: none;
+  }
+  .stats-showcase .stat-card .stat-icon {
+    box-shadow: none;
+    will-change: auto;
   }
 }
