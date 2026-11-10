@@ -151,6 +151,7 @@ export default function Home() {
 
   const animateCounters = () => {
     const counters = document.querySelectorAll(".counter-number");
+    console.log("Animating counters:", counters.length);
     counters.forEach((counter, index) => {
       const target = parseFloat(counter.getAttribute("data-target") || "0");
       const decimals = parseInt(counter.getAttribute("data-decimals") || "0", 10);
