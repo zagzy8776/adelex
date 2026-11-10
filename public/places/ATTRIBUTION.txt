@@ -1,0 +1,4 @@
+Location names and coordinates: GeoNames, https://www.geonames.org/
+Source datasets: countryInfo.txt, admin1CodesASCII.txt and cities5000.zip from https://download.geonames.org/export/dump/
+Licensed under Creative Commons Attribution 4.0: https://creativecommons.org/licenses/by/4.0/
+Adapted for ADEXEC: filtered fields, grouped by country, rounded coordinates. City coverage is not exhaustive.

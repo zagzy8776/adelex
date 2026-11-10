@@ -1,0 +1,10 @@
+work/
+outputs/
+.sites-runtime/
+.wrangler/
+.vinext/
+dist/
+.env*
+.dev.vars*
+*.pem
+*.log
