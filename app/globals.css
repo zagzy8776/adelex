@@ -3167,8 +3167,8 @@ tbody tr:hover {
 /* Animated Stat Cards */
 .animate-stat {
   opacity: 0;
-  transform: translateY(30px);
-  animation: slideUpFade 0.8s ease-out forwards;
+  transform: translateY(15px);
+  animation: slideUpFade 0.5s ease-out forwards;
 }
 
 @keyframes slideUpFade {
@@ -3179,31 +3179,20 @@ tbody tr:hover {
 }
 
 .about-stat-card {
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .about-stat-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 12px 32px rgba(237, 139, 46, 0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(6, 24, 46, 0.08);
 }
 
 .about-stat-card svg {
-  transition: all 0.4s ease;
-  animation: iconBounce 2s ease-in-out infinite;
+  transition: transform 0.25s ease;
 }
 
 .about-stat-card:hover svg {
-  transform: scale(1.1) rotate(5deg);
-  animation: none;
-}
-
-@keyframes iconBounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
+  transform: scale(1.05);
 }
 
 .counter-number {
@@ -3211,29 +3200,14 @@ tbody tr:hover {
   font-variant-numeric: tabular-nums;
 }
 
-/* Stagger animation delays are applied inline via style prop */
-
-/* Enhanced hover effects for review cards */
+/* Review cards - minimal hover */
 .review-card {
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
 .review-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 32px rgba(6, 24, 46, 0.12);
-  border-color: var(--orange);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(6, 24, 46, 0.08);
+  border-color: rgba(237, 139, 46, 0.2);
 }
 
-.review-stars svg {
-  animation: starShine 2s ease-in-out infinite;
-  animation-delay: calc(var(--i) * 0.1s);
-}
-
-@keyframes starShine {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.6;
-  }
-}
