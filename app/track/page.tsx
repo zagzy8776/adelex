@@ -1,18 +1,15 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   ArrowRight,
   Package,
   CalendarDays,
   MapPin,
-  Clock,
   Copy,
   Info,
   LoaderCircle,
   Headphones,
-  RefreshCw,
-  Play,
-  Pause,
 } from "lucide-react";
 import { Header, Footer, TrackingForm } from "@/app/components/Shell";
 import ShipmentMap from "@/app/components/ShipmentMap";
@@ -22,25 +19,49 @@ import {
   statusLabels,
   displayDate,
   isFreshGPS,
+  sourceLabel,
 } from "@/app/lib/domain";
+
+/** Says plainly what the dashed part of the map is, per transport mode. */
+function routeNote(service: string, planned: boolean) {
+  if (planned)
+    return "The travelled line follows the planned route supplied by dispatch.";
+  if (service === "Air freight")
+    return "The dashed arc is a great-circle flight path between the two airports, not an airway or radar track.";
+  if (service === "Ocean freight")
+    return "The dashed arc is an indicative sea leg, not a navigable maritime route.";
+  return "The dashed line is a direct guide between reported positions, not road navigation.";
+}
+
+/**
+ * The tracking number lives in the URL.
+ *
+ * `useSearchParams` is the framework's own subscription to it: it re-reads when
+ * the router commits a navigation — including a `?code=` change made without a
+ * page reload — and exposes a server snapshot, so the first client render
+ * agrees with the server HTML. Reading `window.location` through
+ * `useSyncExternalStore` with a no-op subscribe would only ever see the URL as
+ * it was at mount time.
+ */
 export default function TrackPage() {
+  const searchParams = useSearchParams();
+  const code = (searchParams.get("code") || "").trim().toUpperCase();
   const [shipment, setShipment] = useState<PublicShipment | null>(null),
-    [code, setCode] = useState(""),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [warning, setWarning] = useState(""),
     [copied, setCopied] = useState(false),
-    [now, setNow] = useState(Date.now()),
-    [replay, setReplay] = useState(false);
+    [now, setNow] = useState(() => Date.now()),
+    [replay, setReplay] = useState(false),
+    // Which historical update, if any, the map is focused on. The shipment code
+    // is stored alongside the id so a different shipment never inherits a
+    // selection without needing an effect to reset it.
+    [selected, setSelected] = useState<{ code: string; id: string } | null>(
+      null,
+    );
   const controller = useRef<AbortController | null>(null);
   useEffect(() => {
-    const c =
-      new URLSearchParams(window.location.search)
-        .get("code")
-        ?.trim()
-        .toUpperCase() || "";
-    setCode(c);
-    if (!c) return;
+    if (!code) return;
     let disposed = false;
     const load = async (initial = false) => {
       if (initial) setBusy(true);
@@ -48,7 +69,7 @@ export default function TrackPage() {
       const ac = new AbortController();
       controller.current = ac;
       try {
-        const r = await fetch("/api/track?code=" + encodeURIComponent(c), {
+        const r = await fetch("/api/track?code=" + encodeURIComponent(code), {
           signal: ac.signal,
         });
         const d = (await r.json()) as {
@@ -78,14 +99,16 @@ export default function TrackPage() {
       }
     };
     load(true);
+    // The example shipment is static, so polling it would only cost requests.
+    const live = code !== "ADX-DEMO";
     const timer = setInterval(() => {
       if (document.visibilityState === "visible") {
         setNow(Date.now());
-        if (c !== "ADX-DEMO") load();
+        if (live) load();
       }
     }, 10000);
     const visible = () => {
-      if (document.visibilityState === "visible" && c !== "ADX-DEMO") load();
+      if (document.visibilityState === "visible" && live) load();
     };
     document.addEventListener("visibilitychange", visible);
     return () => {
@@ -95,7 +118,7 @@ export default function TrackPage() {
       controller.current = null;
       document.removeEventListener("visibilitychange", visible);
     };
-  }, []);
+  }, [code]);
   useEffect(() => {
     if (!replay) return;
     const points = exampleJourney.map(({ lat, lng }) => [lat, lng]);
@@ -135,6 +158,25 @@ export default function TrackPage() {
   const fresh =
     shipment &&
     isFreshGPS(shipment.locationSource, shipment.locationUpdatedAt, now);
+  // Oldest first: the timeline reads as a journey, not a changelog.
+  const journey = [...(shipment?.events ?? [])].sort((a, b) =>
+    a.createdAt.localeCompare(b.createdAt),
+  );
+  // The update the map is currently focused on, if it belongs to this shipment.
+  const chosen =
+    selected && shipment && selected.code === shipment.code
+      ? (journey.find((event) => event.id === selected.id) ?? null)
+      : null;
+  const focus =
+    chosen && shipment
+      ? {
+          id: chosen.id,
+          lat: chosen.lat,
+          lng: chosen.lng,
+          title: statusLabels[chosen.status] ?? chosen.status,
+          detail: `${chosen.location} · ${displayDate(chosen.createdAt, true)}`,
+        }
+      : null;
   return (
     <>
       <Header active="track" />
@@ -256,15 +298,37 @@ export default function TrackPage() {
                         )}
                       </span>
                     </div>
-                    <ShipmentMap shipment={shipment} />
-                    <div className="map-caption">
-                      <strong>{shipment.currentLocation}</strong>
-                      <br />
-                      {shipment.demo
-                        ? "Illustrative route and sample updates."
-                        : `Position reported ${displayDate(shipment.locationUpdatedAt, true)}. Refreshes every 10 seconds.`}{" "}
-                      Dashed lines are a route guide, not road navigation.
+                    <ShipmentMap shipment={shipment} focus={focus} />
+                    <div className="map-report">
+                      <div>
+                        <span>Status</span>
+                        <strong>{statusLabels[shipment.status]}</strong>
+                      </div>
+                      <div>
+                        <span>Last reported</span>
+                        <strong title={shipment.currentLocation}>
+                          {shipment.currentLocation}
+                        </strong>
+                      </div>
+                      <div>
+                        <span>Updated</span>
+                        <strong>
+                          {displayDate(shipment.locationUpdatedAt, true)}
+                        </strong>
+                      </div>
                     </div>
+                    <p className="map-caption">
+                      {shipment.demo
+                        ? "Illustrative route and sample updates. "
+                        : shipment.locationSource === "gps"
+                          ? "Position reported by the assigned driver's device. Refreshes every 10 seconds. "
+                          : "Position reported by dispatch. Refreshes every 10 seconds. "}
+                      {routeNote(
+                        shipment.service,
+                        Array.isArray(shipment.routeGeometry) &&
+                          shipment.routeGeometry.length > 1,
+                      )}
+                    </p>
                   </section>
                   <section className="panel">
                     <div className="route-summary">
@@ -325,18 +389,84 @@ export default function TrackPage() {
                           {statusLabels[shipment.status]}
                         </span>
                       </div>
-                      <ol className="timeline">
-                        {shipment.events?.map((e) => (
-                          <li key={e.id}>
-                            <strong>{statusLabels[e.status]}</strong>
-                            <p>{e.location}</p>
-                            {e.note && <p>{e.note}</p>}
-                            <time dateTime={e.createdAt}>
-                              {displayDate(e.createdAt, true)}
-                            </time>
-                          </li>
-                        ))}
-                      </ol>
+                      {journey.length === 0 ? (
+                        <p className="text-sm muted">
+                          No journey updates have been recorded yet.
+                        </p>
+                      ) : (
+                        <>
+                          <p className="timeline-hint">
+                            Select an update to see where it was reported.
+                          </p>
+                          {chosen && (
+                            <div className="focus-bar" role="status">
+                              <span>
+                                <strong>
+                                  {statusLabels[chosen.status]}{" "}
+                                  {displayDate(chosen.createdAt, true)}
+                                </strong>
+                                {chosen.location}
+                              </span>
+                              <button
+                                type="button"
+                                className="link-button"
+                                onClick={() => setSelected(null)}
+                              >
+                                Back to live position
+                              </button>
+                            </div>
+                          )}
+                          <ol className="timeline">
+                            {journey.map((e, i) => {
+                              const active = chosen?.id === e.id;
+                              return (
+                                <li
+                                  key={e.id}
+                                  className={
+                                    [
+                                      i === journey.length - 1
+                                        ? "is-current"
+                                        : "",
+                                      active ? "is-selected" : "",
+                                    ]
+                                      .filter(Boolean)
+                                      .join(" ") || undefined
+                                  }
+                                >
+                                  <button
+                                    type="button"
+                                    className="timeline-hit"
+                                    aria-pressed={active}
+                                    onClick={() =>
+                                      setSelected(
+                                        active
+                                          ? null
+                                          : { code: shipment.code, id: e.id },
+                                      )
+                                    }
+                                  >
+                                    <strong>{statusLabels[e.status]}</strong>
+                                    <span className="tl-line">
+                                      {e.location}
+                                    </span>
+                                    {e.note && (
+                                      <span className="tl-line">{e.note}</span>
+                                    )}
+                                    <span className="timeline-meta">
+                                      <time dateTime={e.createdAt}>
+                                        {displayDate(e.createdAt, true)}
+                                      </time>
+                                      <span className={"src " + e.source}>
+                                        {sourceLabel(e.source)}
+                                      </span>
+                                    </span>
+                                  </button>
+                                </li>
+                              );
+                            })}
+                          </ol>
+                        </>
+                      )}
                     </div>
                   </section>
                   <div className="panel help-panel">

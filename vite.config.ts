@@ -45,6 +45,11 @@ export default defineConfig(async ({ command }) => {
   const { cloudflare } = await import("@cloudflare/vite-plugin");
 
   return {
+    // `NEXT_PUBLIC_*` is the name a Next-shaped project expects, and the Next
+    // webpack build inlines it. Vite only exposes `VITE_*` by default, so the
+    // prefix is added here to make one public variable work on both bundlers.
+    // Both prefixes are client-visible by design; no secret may use either.
+    envPrefix: ["VITE_", "NEXT_PUBLIC_"],
     resolve: {
       alias: {
         "@/runtime/host": fileURLToPath(

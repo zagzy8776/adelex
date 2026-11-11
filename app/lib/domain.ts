@@ -94,6 +94,7 @@ export type Shipment = z.infer<typeof shipmentSchema> & {
   updatedAt: string;
   events?: ShipmentEvent[];
   demo?: boolean;
+  routeGeometry?: RouteGeometry;
   driverTokenExpiresAt?: string | null;
 };
 export type ShipmentEvent = {
@@ -106,6 +107,21 @@ export type ShipmentEvent = {
   source: string;
   createdAt: string;
 };
+/** Optional planned geometry (road-following route) supplied by dispatch. */
+export type RouteGeometry = [number, number][];
+export const sourceLabels: Record<string, string> = {
+  gps: "Driver device",
+  dispatch: "Dispatch desk",
+  manual: "Manual entry",
+  demo: "Example data",
+};
+/** Human label for how a location update was obtained. */
+export function sourceLabel(source: string) {
+  if (!source) return "Unknown source";
+  const known = sourceLabels[source];
+  if (known) return known;
+  return source.charAt(0).toUpperCase() + source.slice(1);
+}
 export type PublicShipment = Omit<
   Shipment,
   | "recipientName"
@@ -140,6 +156,7 @@ export function publicShipment(s: Record<string, unknown>) {
     "locationUpdatedAt",
     "createdAt",
     "updatedAt",
+    "routeGeometry",
   ];
   return Object.fromEntries(fields.map((key) => [key, s[key]]));
 }
