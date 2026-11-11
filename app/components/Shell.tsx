@@ -8,8 +8,13 @@ import {
   Plane,
   ShieldCheck,
   MapPin,
+  Globe,
+  ChevronDown,
 } from "lucide-react";
 import type { BusinessSettings } from "@/app/lib/domain";
+import { useI18n } from "@/app/components/LanguageProvider";
+import type { Locale } from "@/app/lib/i18n/dictionaries";
+
 export function Brand() {
   return (
     <a className="brand" href="/" aria-label="ADEXEC Logistics home">
@@ -17,8 +22,53 @@ export function Brand() {
     </a>
   );
 }
+
+export function LanguageSwitcher() {
+  const { locale, setLocale, locales, labels, t } = useI18n();
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="lang-switcher">
+      <button
+        type="button"
+        className="lang-trigger"
+        aria-label={t("lang.label")}
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <Globe size={16} strokeWidth={1.8} />
+        <span>{labels[locale]}</span>
+        <ChevronDown size={14} />
+      </button>
+      {open && (
+        <>
+          <div className="lang-backdrop" onClick={() => setOpen(false)} />
+          <div className="lang-menu" role="listbox">
+            {locales.map((code) => (
+              <button
+                key={code}
+                type="button"
+                role="option"
+                aria-selected={code === locale}
+                className={code === locale ? "active" : ""}
+                onClick={() => {
+                  setLocale(code as Locale);
+                  setOpen(false);
+                }}
+              >
+                {labels[code]}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 export function Header({ active = "" }: { active?: string }) {
   const [open, setOpen] = useState(false);
+  const { t } = useI18n();
   return (
     <header className="site-header">
       <div className="wrap nav-inner">
@@ -28,35 +78,41 @@ export function Header({ active = "" }: { active?: string }) {
           aria-label="Main navigation"
         >
           <a href="/#services" onClick={() => setOpen(false)}>
-            Our services
+            {t("nav.services")}
           </a>
           <a href="/#how-it-works" onClick={() => setOpen(false)}>
-            How it works
+            {t("nav.how")}
           </a>
           <a href="/track" className={active === "track" ? "active" : ""}>
-            Track shipment
+            {t("nav.track")}
           </a>
           <a href="/#contact" onClick={() => setOpen(false)}>
-            Contact us
+            {t("nav.contact")}
           </a>
+          <LanguageSwitcher />
           <a href="/request" className="button orange nav-cta">
-            Ship with us <ArrowUpRight size={17} />
+            {t("nav.ship")} <ArrowUpRight size={17} />
           </a>
         </nav>
-        <button
-          className="menu-toggle"
-          onClick={() => setOpen(!open)}
-          aria-label={open ? "Close navigation" : "Open navigation"}
-          aria-expanded={open}
-        >
-          {open ? <X /> : <Menu />}
-        </button>
+        <div className="nav-mobile-tools">
+          <LanguageSwitcher />
+          <button
+            className="menu-toggle"
+            onClick={() => setOpen(!open)}
+            aria-label={open ? t("nav.close") : t("nav.open")}
+            aria-expanded={open}
+          >
+            {open ? <X /> : <Menu />}
+          </button>
+        </div>
       </div>
     </header>
   );
 }
+
 export function Footer() {
   const [settings, setSettings] = useState<BusinessSettings | null>(null);
+  const { t } = useI18n();
   useEffect(() => {
     fetch("/api/settings")
       .then((r) =>
@@ -71,26 +127,26 @@ export function Footer() {
         <div>
           <Brand />
           <p>
-            Moving your business forward.
+            {t("footer.tagline1")}
             <br />
-            One shipment at a time.
+            {t("footer.tagline2")}
           </p>
         </div>
         <div>
-          <h4>Explore</h4>
-          <a href="/#services">Shipping services</a>
-          <a href="/track">Track your shipment</a>
-          <a href="/request">Request a quote</a>
+          <h4>{t("footer.explore")}</h4>
+          <a href="/#services">{t("footer.services")}</a>
+          <a href="/track">{t("footer.track")}</a>
+          <a href="/request">{t("footer.quote")}</a>
         </div>
         <div>
-          <h4>Let’s get it moving</h4>
+          <h4>{t("footer.moving")}</h4>
           {settings?.contactEmail && (
             <a href={"mailto:" + settings.contactEmail}>
               {settings.contactEmail}
             </a>
           )}
           {settings?.contactPhone && (
-            <a href={"tel:" + settings.contactPhone.replace(/[^+\d]/g, "")}>
+            <a href={"tel:" + settings.contactPhone.replace(/[^\+\d]/g, "")}>
               {settings.contactPhone}
             </a>
           )}
@@ -104,21 +160,22 @@ export function Footer() {
           {settings?.address && <p>{settings.address}</p>}
           {settings?.businessHours && <p>{settings.businessHours}</p>}
           <a href="/request" className="footer-contact">
-            Talk to our shipping team <ArrowUpRight size={16} />
+            {t("footer.talk")} <ArrowUpRight size={16} />
           </a>
         </div>
       </div>
       <div className="wrap footer-bottom">
         <span>
-          © {new Date().getFullYear()} ADEXEC Logistics. All rights reserved.
+          © {new Date().getFullYear()} ADEXEC Logistics. {t("footer.rights")}
         </span>
         <div>
-          <a href="/privacy">Privacy</a>
+          <a href="/privacy">{t("footer.privacy")}</a>
         </div>
       </div>
     </footer>
   );
 }
+
 export function TrackingForm({
   compact = false,
   initial = "",
@@ -127,6 +184,7 @@ export function TrackingForm({
   initial?: string;
 }) {
   const [code, setCode] = useState(initial);
+  const { t } = useI18n();
   return (
     <form
       action="/track"
@@ -136,8 +194,8 @@ export function TrackingForm({
         <Plane size={21} strokeWidth={1.8} />
         <input
           name="code"
-          aria-label="Tracking number"
-          placeholder="Enter your tracking number"
+          aria-label={t("track.aria")}
+          placeholder={t("track.placeholder")}
           value={code}
           onChange={(e) => setCode(e.target.value)}
           required
@@ -146,25 +204,27 @@ export function TrackingForm({
         />
       </div>
       <button className="button orange" type="submit">
-        Track shipment <ArrowRight size={18} />
+        {t("track.button")} <ArrowRight size={18} />
       </button>
     </form>
   );
 }
+
 export function Assurance() {
+  const { t } = useI18n();
   return (
     <div className="assurance">
       <span>
         <ShieldCheck size={17} />
-        Handled with care
+        {t("assure.care")}
       </span>
       <span>
         <MapPin size={17} />
-        Shipment visibility
+        {t("assure.visibility")}
       </span>
       <span>
         <Plane size={17} />
-        From pickup to delivery
+        {t("assure.pickup")}
       </span>
     </div>
   );
