@@ -24,6 +24,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { Header, Footer, TrackingForm, Assurance } from "./components/Shell";
+import { useT } from "./components/LanguageProvider";
 
 type AnimatedCounterProps = {
   end: number;
@@ -206,6 +207,8 @@ const gallery = [
 ];
 
 export default function Home() {
+  const t = useT();
+
   const scrollReviews = (direction: 'left' | 'right') => {
     const track = document.querySelector('.reviews-track') as HTMLElement;
     if (track) {
@@ -260,25 +263,23 @@ export default function Home() {
           <div className="hero-grid wrap">
             <div className="hero-copy reveal">
               <div className="eyebrow light">
-                <span /> YOUR NEXT MOVE, DELIVERED.
+                <span /> {t("hero.eyebrow")}
               </div>
               <h1>
-                Every shipment.
-                <br />A promise
+                {t("hero.title1")}
+                <br />{t("hero.title2")}
                 <br />
-                <em>delivered.</em>
+                <em>{t("hero.title3")}</em>
               </h1>
               <p>
-                Your goods matter. Move them with clarity, care,
-                <br className="desktop-only" /> and a shipping partner that
-                keeps you informed.
+                {t("hero.body")}
               </p>
               <div className="hero-actions">
                 <a href="/request" className="button orange">
-                  Let’s get it moving <ArrowUpRight size={19} />
+                  {t("hero.cta")} <ArrowUpRight size={19} />
                 </a>
                 <a href="#services" className="text-link">
-                  Explore our services <ArrowRight size={17} />
+                  {t("hero.explore")} <ArrowRight size={17} />
                 </a>
               </div>
               <Assurance />
@@ -292,9 +293,9 @@ export default function Home() {
               />
               <div className="image-shade" />
               <div className="visual-label">
-                <span className="small-cross">+</span> CONNECTING PLACES.
+                <span className="small-cross">+</span> {t("hero.visual1")}
                 <br />
-                DELIVERING POSSIBILITIES.
+                {t("hero.visual2")}
               </div>
               <div className="hero-coordinate">
                 ADEXEC / ALWAYS MOVING FORWARD
@@ -304,8 +305,8 @@ export default function Home() {
                   <Plane size={22} strokeWidth={1.8} />
                 </div>
                 <div>
-                  <strong>A clearer view of every journey</strong>
-                  <span>Track locations. Follow milestones.</span>
+                  <strong>{t("hero.cardTitle")}</strong>
+                  <span>{t("hero.cardSub")}</span>
                 </div>
                 <div className="floating-check">
                   <Check size={16} />
@@ -314,21 +315,21 @@ export default function Home() {
             </div>
           </div>
           <div className="hero-bottom-line wrap">
-            <span>BUILT AROUND YOUR BUSINESS</span>
+            <span>{t("hero.built")}</span>
             <span>
-              BY ROAD <i /> BY AIR <i /> BY SEA
+              {t("hero.modes")}
             </span>
           </div>
         </section>
 
         <section className="track-bar wrap" aria-label="Track your shipment">
           <div>
-            <span className="eyebrow">STAY IN THE KNOW</span>
-            <h2>Where’s your shipment?</h2>
+            <span className="eyebrow">{t("track.section")}</span>
+            <h2>{t("track.title")}</h2>
           </div>
           <div className="track-bar-form">
             <TrackingForm />
-            <p>Have a tracking number? Follow your shipment’s journey.</p>
+            <p>{t("track.hint")}</p>
           </div>
         </section>
 
@@ -343,16 +344,15 @@ export default function Home() {
         <section className="section wrap" id="services">
           <div className="section-heading">
             <div>
-              <span className="eyebrow">01 / OUR SERVICES</span>
+              <span className="eyebrow">{t("services.eyebrow")}</span>
               <h2>
-                Whatever you’re moving.
+                {t("services.title1")}
                 <br />
-                We’ll help you get it there.
+                {t("services.title2")}
               </h2>
             </div>
             <p>
-              From business essentials to your next big shipment,
-              <br className="desktop-only" /> find the right way forward.
+              {t("services.intro")}
             </p>
           </div>
           <div className="services-grid visual-services">
@@ -381,18 +381,17 @@ export default function Home() {
                   <div className="service-top">
                     <s.icon size={28} strokeWidth={1.4} />
                   </div>
-                  <h3>{s.title}</h3>
+                  <h3>{t(("services.road" if s.title === "Road freight" : s.title === "Air freight" ? "services.air" : s.title === "Ocean freight" ? "services.ocean" : "services.express") as any)}</h3>
                   <p>{s.text}</p>
                   <span className="service-link">
-                    Explore options <ArrowUpRight size={18} />
+                    {t("services.explore")} <ArrowUpRight size={18} />
                   </span>
                 </div>
               </a>
             ))}
           </div>
           <p className="service-note">
-            Routes, availability, transit times, and pricing are confirmed with
-            your shipping quote.
+            {t("services.note")}
           </p>
         </section>
 
@@ -405,9 +404,9 @@ export default function Home() {
                 </div>
                 <h3>
                   <AnimatedCounter className="counter-number" end={12} duration={2500} />
-                  <span className="stat-label"> Years</span>
+                  <span className="stat-label"> {t("stats.years")}</span>
                 </h3>
-                <p>Of trusted logistics expertise</p>
+                <p>{t("stats.yearsSub")}</p>
               </article>
               <article className="stat-card" style={{ animationDelay: "0.2s" }}>
                 <div className="stat-icon">
@@ -415,18 +414,18 @@ export default function Home() {
                 </div>
                 <h3>
                   <AnimatedCounter className="counter-number" end={202} duration={3500} />
-                  <span className="stat-label"> Countries</span>
+                  <span className="stat-label"> {t("stats.countries")}</span>
                 </h3>
-                <p>Worldwide coverage</p>
+                <p>{t("stats.countriesSub")}</p>
               </article>
               <article className="stat-card" style={{ animationDelay: "0.3s" }}>
                 <div className="stat-icon">
                   <Users size={28} strokeWidth={1.6} />
                 </div>
                 <h3>
-                  <span className="stat-label">Elite Team</span>
+                  <span className="stat-label">{t("stats.team")}</span>
                 </h3>
-                <p>Industry-leading professionals</p>
+                <p>{t("stats.teamSub")}</p>
               </article>
               <article className="stat-card" style={{ animationDelay: "0.4s" }}>
                 <div className="stat-icon">
@@ -434,9 +433,9 @@ export default function Home() {
                 </div>
                 <h3>
                   <AnimatedCounter className="counter-number" end={99.8} decimals={1} suffix="%" duration={3000} />
-                  <span className="stat-label"> On-Time</span>
+                  <span className="stat-label"> {t("stats.ontime")}</span>
                 </h3>
-                <p>Delivery success rate</p>
+                <p>{t("stats.ontimeSub")}</p>
               </article>
             </div>
           </div>
@@ -447,9 +446,9 @@ export default function Home() {
             <div className="journey-illustration">
               <div className="journey-top">
                 <span>
-                  <span className="orange-dot" /> SHIPMENT VISIBILITY
+                  <span className="orange-dot" /> {t("vis.tag")}
                 </span>
-                <span className="demo-tag">EXAMPLE</span>
+                <span className="demo-tag">{t("vis.example")}</span>
               </div>
               <svg viewBox="0 0 560 260" aria-hidden="true">
                 <defs>
@@ -503,37 +502,36 @@ export default function Home() {
                   <Plane size={22} strokeWidth={1.7} />
                 </div>
                 <div>
-                  <strong>In transit</strong>
-                  <p>A new milestone. One step closer.</p>
+                  <strong>{t("vis.inTransit")}</strong>
+                  <p>{t("vis.milestone")}</p>
                 </div>
-                <span className="status-pill in_transit">On the move</span>
+                <span className="status-pill in_transit">{t("vis.onMove")}</span>
               </div>
             </div>
             <div className="visibility-copy">
-              <span className="eyebrow">02 / VISIBILITY, EVERY STEP</span>
+              <span className="eyebrow">{t("vis.eyebrow")}</span>
               <h2>
-                A little less wondering.
-                <br />A lot more knowing.
+                {t("vis.title1")}
+                <br />{t("vis.title2")}
               </h2>
               <p>
-                Enter one tracking number to see your shipment’s latest reported
-                location, delivery estimate, and progress—all in one place.
+                {t("vis.body")}
               </p>
               <ul>
                 <li>
                   <Check size={18} />
-                  An interactive map of your shipment’s journey
+                  {t("vis.li1")}
                 </li>
                 <li>
                   <Check size={18} />
-                  Clear updates from collection to delivery
+                  {t("vis.li2")}
                 </li>
                 <li>
-                  <Check size={18} />A tracking link you can open on any device
+                  <Check size={18} />{t("vis.li3")}
                 </li>
               </ul>
               <a className="text-link dark" href="/track?code=ADX-DEMO">
-                Explore example tracking <ArrowUpRight size={19} />
+                {t("vis.demo")} <ArrowUpRight size={19} />
               </a>
             </div>
           </div>
@@ -542,40 +540,37 @@ export default function Home() {
         <section className="section wrap" id="how-it-works">
           <div className="section-heading">
             <div>
-              <span className="eyebrow">03 / SIMPLE FROM THE START</span>
+              <span className="eyebrow">{t("steps.eyebrow")}</span>
               <h2>
-                Your next delivery,
+                {t("steps.title1")}
                 <br />
-                in three clear steps.
+                {t("steps.title2")}
               </h2>
             </div>
             <a href="/request" className="button outline">
-              Start your shipment <ArrowUpRight size={18} />
+              {t("steps.cta")} <ArrowUpRight size={18} />
             </a>
           </div>
           <div className="steps">
             <article>
               <span className="step-number">01</span>
-              <h3>Tell us what’s moving.</h3>
+              <h3>{t("steps.1t")}</h3>
               <p>
-                Share your pickup, destination, and cargo details. Our team
-                reviews your request and confirms the options.
+                {t("steps.1b")}
               </p>
             </article>
             <article>
               <span className="step-number">02</span>
-              <h3>We plan the journey.</h3>
+              <h3>{t("steps.2t")}</h3>
               <p>
-                Once arrangements are confirmed, you receive a unique tracking
-                number to follow your shipment.
+                {t("steps.2b")}
               </p>
             </article>
             <article>
               <span className="step-number">03</span>
-              <h3>Follow it to the finish.</h3>
+              <h3>{t("steps.3t")}</h3>
               <p>
-                Check your map and shipment timeline for location updates,
-                progress, and delivery confirmation.
+                {t("steps.3b")}
               </p>
             </article>
           </div>
@@ -583,33 +578,33 @@ export default function Home() {
 
         <section className="faq-section wrap">
           <div>
-            <span className="eyebrow">GOOD TO KNOW</span>
+            <span className="eyebrow">{t("faq.eyebrow")}</span>
             <h2>
-              A few things,
+              {t("faq.title1")}
               <br />
-              before we go.
+              {t("faq.title2")}
             </h2>
             <a href="/request" className="text-link dark">
-              Have another question? <ArrowUpRight size={17} />
+              {t("faq.more")} <ArrowUpRight size={17} />
             </a>
           </div>
           <div className="faqs">
             {[
               [
-                "How do I track my shipment?",
-                "Open the tracking link shared by our team, or enter your tracking number in the tracking box. You’ll see the latest status, reported location, delivery estimate, and shipment history.",
+                t("faq.q1"),
+                t("faq.a1"),
               ],
               [
-                "Does the map show live GPS?",
-                "The map shows the latest reported position and the time it was updated. When a driver shares an active GPS location, the map displays live GPS updates. Older readings are labelled as the last known position.",
+                t("faq.q2"),
+                t("faq.a2"),
               ],
               [
-                "How much will shipping cost?",
-                "Pricing depends on your route, cargo size and weight, service, and delivery requirements. Submit a shipping request so the team can confirm an appropriate quote.",
+                t("faq.q3"),
+                t("faq.a3"),
               ],
               [
-                "What happens after I request a quote?",
-                "Your request is reviewed by the shipping team. They will contact you using the details you provide. A request becomes a shipment only once arrangements are confirmed.",
+                t("faq.q4"),
+                t("faq.a4"),
               ],
             ].map(([q, a]) => (
               <details key={q}>
@@ -748,15 +743,15 @@ export default function Home() {
         <section className="cta-section">
           <div className="wrap">
             <div>
-              <span className="eyebrow light">READY WHEN YOU ARE.</span>
+              <span className="eyebrow light">{t("cta.eyebrow")}</span>
               <h2>
-                Let’s move something
+                {t("cta.title1")}
                 <br />
-                forward, together.
+                {t("cta.title2")}
               </h2>
             </div>
             <a href="/request" className="button orange">
-              Request a shipping quote <ArrowUpRight size={20} />
+              {t("cta.button")} <ArrowUpRight size={20} />
             </a>
           </div>
         </section>
