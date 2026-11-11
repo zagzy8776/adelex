@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "./upgrade.css";
+import { LanguageProvider } from "./components/LanguageProvider";
 
 export const metadata: Metadata = {
   title: {
@@ -22,7 +23,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <LanguageProvider>{children}</LanguageProvider>
+      </body>
     </html>
   );
 }
