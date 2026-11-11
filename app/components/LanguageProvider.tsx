@@ -40,6 +40,10 @@ function detectLocale(): Locale {
   }
   const nav = (navigator.language || "").toLowerCase();
   if (nav.startsWith("fr")) return "fr";
+  if (nav.startsWith("es")) return "es";
+  if (nav.startsWith("pt")) return "pt";
+  if (nav.startsWith("de")) return "de";
+  if (nav.startsWith("ar")) return "ar";
   return defaultLocale;
 }
 
@@ -49,11 +53,13 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     const detected = detectLocale();
     setLocaleState(detected);
     document.documentElement.lang = detected;
+    document.documentElement.dir = detected === "ar" ? "rtl" : "ltr";
   }, []);
 
   const setLocale = useCallback((next: Locale) => {
     setLocaleState(next);
     document.documentElement.lang = next;
+    document.documentElement.dir = next === "ar" ? "rtl" : "ltr";
     try {
       window.localStorage.setItem(STORAGE_KEY, next);
     } catch {
