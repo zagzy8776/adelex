@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   ArrowRight,
@@ -38,14 +38,35 @@ function routeNote(service: string, planned: boolean) {
  *
  * `useSearchParams` is the framework's own subscription to it: it re-reads when
  * the router commits a navigation — including a `?code=` change made without a
- * page reload — and exposes a server snapshot, so the first client render
- * agrees with the server HTML. Reading `window.location` through
- * `useSyncExternalStore` with a no-op subscribe would only ever see the URL as
- * it was at mount time.
+ * page reload. Reading `window.location` through `useSyncExternalStore` with a
+ * no-op subscribe would only ever see the URL as it was at mount time.
+ *
+ * It also has a build-time consequence: a static prerender cannot know the query
+ * string, so Next treats a route that reads it as a client-side bailout and
+ * fails the build unless the call sits behind a Suspense boundary
+ * (`missing-suspense-with-csr-bailout`). Hence the split below — the hook in a
+ * leaf, the whole screen behind `<Suspense>`. The fallback is that same screen
+ * with no code, so a prerendered or pre-hydration visitor sees this page's own
+ * empty state rather than a spinner over an otherwise blank route.
  */
 export default function TrackPage() {
+  return (
+    <Suspense fallback={<TrackScreen code="" />}>
+      <TrackFromUrl />
+    </Suspense>
+  );
+}
+
+/** Reads `?code=`. Must stay inside the Suspense boundary in `TrackPage`. */
+function TrackFromUrl() {
   const searchParams = useSearchParams();
-  const code = (searchParams.get("code") || "").trim().toUpperCase();
+  return (
+    <TrackScreen code={(searchParams.get("code") || "").trim().toUpperCase()} />
+  );
+}
+
+/** The screen itself: everything except the URL subscription. */
+function TrackScreen({ code }: { code: string }) {
   const [shipment, setShipment] = useState<PublicShipment | null>(null),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
