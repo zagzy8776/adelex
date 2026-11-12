@@ -10,7 +10,10 @@ import {
 } from "lucide-react";
 import { Header, Footer } from "@/app/components/Shell";
 import { services } from "@/app/lib/domain";
+import { useT } from "@/app/components/LanguageProvider";
+
 export default function RequestPage() {
+  const t = useT();
   const [service, setService] = useState<string>(services[0]),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
@@ -36,9 +39,7 @@ export default function RequestPage() {
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (e) {
       setError(
-        e instanceof Error
-          ? e.message
-          : "Unable to submit your request. Please try again.",
+        e instanceof Error ? e.message : t("req.error"),
       );
     } finally {
       setBusy(false);
@@ -49,12 +50,9 @@ export default function RequestPage() {
       <Header />
       <div className="page-intro">
         <div className="wrap">
-          <span className="eyebrow light">LET’S GET IT MOVING</span>
-          <h1>Your next journey starts here.</h1>
-          <p>
-            Tell us what you need to ship. Our team will review your details and
-            get in touch to confirm the options.
-          </p>
+          <span className="eyebrow light">{t("req.eyebrow")}</span>
+          <h1>{t("req.title")}</h1>
+          <p>{t("req.intro")}</p>
         </div>
       </div>
       <main className="request-layout wrap">
@@ -62,21 +60,20 @@ export default function RequestPage() {
           {reference ? (
             <div className="empty-state" style={{ border: 0 }}>
               <PackageCheck />
-              <h2>Your request is with us.</h2>
+              <h2>{t("req.successTitle")}</h2>
               <p>
-                Reference: <strong>{reference}</strong>
+                {t("req.reference")} <strong>{reference}</strong>
                 <br />
-                Our team will contact you using the details you provided. Your
-                shipment and pricing will be confirmed separately.
+                {t("req.successBody")}
               </p>
               <a href="/" className="button navy">
-                Back to home <ArrowRight size={17} />
+                {t("req.back")} <ArrowRight size={17} />
               </a>
             </div>
           ) : (
             <form onSubmit={submit}>
               <h2 style={{ fontSize: 24, marginBottom: 24 }}>
-                Request a shipping quote
+                {t("req.formTitle")}
               </h2>
               {error && (
                 <div className="notice error" role="alert">
@@ -86,29 +83,29 @@ export default function RequestPage() {
               )}
               <div className="form-grid">
                 <label>
-                  Full name
+                  {t("req.name")}
                   <input
                     name="name"
                     required
                     minLength={2}
                     maxLength={160}
                     autoComplete="name"
-                    placeholder="Your full name"
+                    placeholder={t("req.namePh")}
                   />
                 </label>
                 <label>
-                  Email address
+                  {t("req.email")}
                   <input
                     type="email"
                     name="email"
                     required
                     maxLength={180}
                     autoComplete="email"
-                    placeholder="you@company.com"
+                    placeholder={t("req.emailPh")}
                   />
                 </label>
                 <label className="full">
-                  Phone number
+                  {t("req.phone")}
                   <input
                     type="tel"
                     name="phone"
@@ -116,46 +113,54 @@ export default function RequestPage() {
                     minLength={5}
                     maxLength={40}
                     autoComplete="tel"
-                    placeholder="Include your country code"
+                    placeholder={t("req.phonePh")}
                   />
                 </label>
               </div>
               <div className="form-section">
-                <h3>Shipment details</h3>
+                <h3>{t("req.details")}</h3>
                 <div className="form-grid">
                   <label>
-                    Pickup location
+                    {t("req.origin")}
                     <input
                       name="origin"
                       required
                       minLength={2}
                       maxLength={160}
-                      placeholder="City and country"
+                      placeholder={t("req.cityPh")}
                     />
                   </label>
                   <label>
-                    Delivery location
+                    {t("req.dest")}
                     <input
                       name="destination"
                       required
                       minLength={2}
                       maxLength={160}
-                      placeholder="City and country"
+                      placeholder={t("req.cityPh")}
                     />
                   </label>
                   <label>
-                    Shipping service
+                    {t("req.service")}
                     <select
                       value={service}
                       onChange={(e) => setService(e.target.value)}
                     >
                       {services.map((s) => (
-                        <option key={s}>{s}</option>
+                        <option key={s} value={s}>
+                          {s === "Road freight"
+                            ? t("services.road")
+                            : s === "Air freight"
+                              ? t("services.air")
+                              : s === "Ocean freight"
+                                ? t("services.ocean")
+                                : t("services.express")}
+                        </option>
                       ))}
                     </select>
                   </label>
                   <label>
-                    Estimated weight (kg)
+                    {t("req.weight")}
                     <input
                       name="weight"
                       type="number"
@@ -163,18 +168,18 @@ export default function RequestPage() {
                       max="1000000"
                       step="0.01"
                       required
-                      placeholder="e.g. 24"
+                      placeholder={t("req.weightPh")}
                     />
                   </label>
                   <label className="full">
-                    What are you shipping?
+                    {t("req.what")}
                     <textarea
                       name="description"
                       required
                       minLength={5}
                       maxLength={2000}
                       rows={4}
-                      placeholder="Tell us about your goods, package sizes, preferred dates, and any special handling needs."
+                      placeholder={t("req.whatPh")}
                     />
                   </label>
                   <label className="honey" aria-hidden="true">
@@ -184,15 +189,13 @@ export default function RequestPage() {
                 </div>
               </div>
               <p className="privacy-note">
-                We use these details to email your request receipt, respond to
-                your request and arrange shipping. Read our{" "}
-                <a href="/privacy">privacy information</a>. Submitting a request
-                does not confirm a booking or payment.
+                {t("req.privacy")}{" "}
+                <a href="/privacy">{t("req.privacyLink")}</a>. {t("req.privacy2")}
               </p>
               <div className="form-actions">
                 <button className="button orange" disabled={busy}>
                   {busy ? <LoaderCircle className="spinner" size={17} /> : null}
-                  {busy ? "Sending request…" : "Send shipping request"}
+                  {busy ? t("req.sending") : t("req.send")}
                   <ArrowRight size={18} />
                 </button>
               </div>
@@ -201,29 +204,26 @@ export default function RequestPage() {
         </div>
         <aside className="request-aside">
           <ShieldCheck size={31} />
-          <h3>Clear from the first step.</h3>
-          <p>
-            A good delivery starts with a good plan. Share as much detail as you
-            can so we can help you find the right option.
-          </p>
+          <h3>{t("req.asideTitle")}</h3>
+          <p>{t("req.asideBody")}</p>
           <ul>
             <li>
               <Check size={17} />
-              Your route and cargo reviewed
+              {t("req.li1")}
             </li>
             <li>
               <Check size={17} />
-              Pricing confirmed before booking
+              {t("req.li2")}
             </li>
             <li>
               <Check size={17} />
-              Tracking once your shipment is created
+              {t("req.li3")}
             </li>
           </ul>
           <div className="divider" />
-          <p>Already have a tracking number?</p>
+          <p>{t("req.haveCode")}</p>
           <a href="/track" className="text-link dark">
-            Follow your shipment <ArrowRight size={16} />
+            {t("req.follow")} <ArrowRight size={16} />
           </a>
         </aside>
       </main>
