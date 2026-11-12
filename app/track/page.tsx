@@ -253,8 +253,8 @@ function TrackScreen({ code }: { code: string }) {
                       onClick={() => setReplay(!replay)}
                     >
                       {replay
-                        ? "{t("trk.pause")}"
-                        : "{t("trk.play")}"}{" "}
+                        ? t("trk.pause")
+                        : t("trk.play")}{" "}
                       {replay ? "Ⅱ" : "▷"}
                     </button>
                   </span>
@@ -280,7 +280,7 @@ function TrackScreen({ code }: { code: string }) {
                 </div>
                 <button className="button outline small" onClick={copy}>
                   <Copy size={14} />
-                  {copied ? "{t("trk.copied")}" : "{t("trk.share")}"}
+                  {copied ? t("trk.copied") : t("trk.share")}
                 </button>
               </div>
               <div className="progress-steps">
