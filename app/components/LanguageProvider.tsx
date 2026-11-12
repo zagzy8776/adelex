@@ -84,7 +84,12 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   );
 
   return (
-    <I18nContext.Provider value={value}>{children}</I18nContext.Provider>
+    <I18nContext.Provider value={value}>
+      {/* key forces a full UI refresh when language changes */}
+      <div key={locale} className="i18n-root">
+        {children}
+      </div>
+    </I18nContext.Provider>
   );
 }
 
