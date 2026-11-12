@@ -381,8 +381,24 @@ export default function Home() {
                   <div className="service-top">
                     <s.icon size={28} strokeWidth={1.4} />
                   </div>
-                  <h3>{t(("services.road" if s.title === "Road freight" : s.title === "Air freight" ? "services.air" : s.title === "Ocean freight" ? "services.ocean" : "services.express") as any)}</h3>
-                  <p>{s.text}</p>
+                  <h3>{(
+                    s.title === "Road freight"
+                      ? t("services.road")
+                      : s.title === "Air freight"
+                        ? t("services.air")
+                        : s.title === "Ocean freight"
+                          ? t("services.ocean")
+                          : t("services.express")
+                  )}</h3>
+                  <p>{(
+                    s.title === "Road freight"
+                      ? t("services.roadText")
+                      : s.title === "Air freight"
+                        ? t("services.airText")
+                        : s.title === "Ocean freight"
+                          ? t("services.oceanText")
+                          : t("services.expressText")
+                  )}</p>
                   <span className="service-link">
                     {t("services.explore")} <ArrowUpRight size={18} />
                   </span>
