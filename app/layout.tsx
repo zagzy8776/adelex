@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./upgrade.css";
 import { LanguageProvider } from "./components/LanguageProvider";
+// deploy-trigger: force vercel rebuild for i18n
 
 export const metadata: Metadata = {
   title: {
