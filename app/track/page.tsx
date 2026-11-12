@@ -11,6 +11,7 @@ import {
   LoaderCircle,
   Headphones,
 } from "lucide-react";
+import { useT } from "@/app/components/LanguageProvider";
 import { Header, Footer, TrackingForm } from "@/app/components/Shell";
 import ShipmentMap from "@/app/components/ShipmentMap";
 import {
@@ -67,6 +68,7 @@ function TrackFromUrl() {
 
 /** The screen itself: everything except the URL subscription. */
 function TrackScreen({ code }: { code: string }) {
+  const t = useT();
   const [shipment, setShipment] = useState<PublicShipment | null>(null),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
@@ -104,16 +106,16 @@ function TrackScreen({ code }: { code: string }) {
             setError(d.error);
             return;
           }
-          throw new Error(d.error || "Tracking is unavailable.");
+          throw new Error(d.error || t("trk.unavailable"));
         }
         setShipment(d.shipment);
         setError("");
         setWarning("");
       } catch (e) {
         if (disposed || ac.signal.aborted) return;
-        const message = e instanceof Error ? e.message : "Unable to connect.";
+        const message = e instanceof Error ? e.message : t("trk.connectFail");
         if (initial) setError(message);
-        else setWarning("Could not refresh. Showing the last received update.");
+        else setWarning(t("trk.refreshFail"));
       } finally {
         if (controller.current === ac) controller.current = null;
         if (!disposed) setBusy(false);
@@ -203,9 +205,9 @@ function TrackScreen({ code }: { code: string }) {
       <Header active="track" />
       <div className="page-intro">
         <div className="wrap">
-          <span className="eyebrow light">YOUR SHIPMENT, IN SIGHT</span>
-          <h1>Follow every step.</h1>
-          <p>Your latest shipment update is just a tracking number away.</p>
+          <span className="eyebrow light">{t("trk.eyebrow")}</span>
+          <h1>{t("trk.title")}</h1>
+          <p>{t("trk.intro")}</p>
         </div>
       </div>
       <main className="tracking-page">
@@ -213,31 +215,30 @@ function TrackScreen({ code }: { code: string }) {
           <div className="tracking-search">
             <TrackingForm key={code} initial={code} />
             <p>
-              Just exploring?{" "}
-              <a href="/track?code=ADX-DEMO">View an example shipment ↗</a>
+              {t("trk.exploring")}{" "}
+              <a href="/track?code=ADX-DEMO">{t("trk.example")}</a>
             </p>
           </div>
           {busy ? (
             <div className="empty-state" role="status">
               <LoaderCircle className="spinner" />
-              <h2>Finding your shipment…</h2>
+              <h2>{t("trk.finding")}</h2>
             </div>
           ) : error ? (
             <div className="empty-state" role="alert">
               <Package />
-              <h2>We couldn’t find that shipment.</h2>
+              <h2>{t("trk.notFound")}</h2>
               <p>{error}</p>
               <a href="/request" className="text-link dark">
-                Contact our shipping team <ArrowRight size={16} />
+                {t("trk.contact")} <ArrowRight size={16} />
               </a>
             </div>
           ) : !shipment ? (
             <div className="empty-state">
               <MapPin />
-              <h2>A clearer view of your delivery.</h2>
+              <h2>{t("trk.emptyTitle")}</h2>
               <p>
-                Enter the tracking number shared by ADEXEC to view your
-                shipment’s location, timeline, and estimated delivery.
+                {t("trk.emptyBody")}
               </p>
             </div>
           ) : (
@@ -246,15 +247,14 @@ function TrackScreen({ code }: { code: string }) {
                 <div className="notice">
                   <Info size={16} />
                   <span>
-                    <strong>Example shipment.</strong> This is a demonstration,
-                    not a real delivery.{" "}
+                    <strong>{t("trk.demo")}</strong> {t("trk.demoBody")}{" "}
                     <button
                       className="link-button"
                       onClick={() => setReplay(!replay)}
                     >
                       {replay
-                        ? "Pause example journey"
-                        : "Play example journey"}{" "}
+                        ? "{t("trk.pause")}"
+                        : "{t("trk.play")}"}{" "}
                       {replay ? "Ⅱ" : "▷"}
                     </button>
                   </span>
@@ -280,7 +280,7 @@ function TrackScreen({ code }: { code: string }) {
                 </div>
                 <button className="button outline small" onClick={copy}>
                   <Copy size={14} />
-                  {copied ? "Link copied" : "Share tracking"}
+                  {copied ? "{t("trk.copied")}" : "{t("trk.share")}"}
                 </button>
               </div>
               <div className="progress-steps">
@@ -313,9 +313,9 @@ function TrackScreen({ code }: { code: string }) {
                         ) : shipment.demo ? (
                           "Example map"
                         ) : shipment.locationSource === "gps" ? (
-                          "Last known GPS position"
+                          t("trk.lastGps")
                         ) : (
-                          "Latest reported position"
+                          t("trk.latestPos")
                         )}
                       </span>
                     </div>
@@ -340,10 +340,10 @@ function TrackScreen({ code }: { code: string }) {
                     </div>
                     <p className="map-caption">
                       {shipment.demo
-                        ? "Illustrative route and sample updates. "
+                        ? t("trk.demoNote") + " "
                         : shipment.locationSource === "gps"
-                          ? "Position reported by the assigned driver's device. Refreshes every 10 seconds. "
-                          : "Position reported by dispatch. Refreshes every 10 seconds. "}
+                          ? t("trk.driverNote") + " "
+                          : t("trk.dispatchNote") + " "}
                       {routeNote(
                         shipment.service,
                         Array.isArray(shipment.routeGeometry) &&
@@ -388,8 +388,8 @@ function TrackScreen({ code }: { code: string }) {
                       <div>
                         <p>
                           {shipment.status === "delivered"
-                            ? "DELIVERY STATUS"
-                            : "ESTIMATED DELIVERY"}
+                            ? t("trk.deliveryStatus")
+                            : t("trk.eta")}
                         </p>
                         <strong>
                           {shipment.status === "delivered"
@@ -398,8 +398,8 @@ function TrackScreen({ code }: { code: string }) {
                         </strong>
                         <small>
                           {shipment.status === "delivered"
-                            ? "Delivery confirmed."
-                            : "Estimate may change as the shipment progresses."}
+                            ? t("trk.delivered")
+                            : t("trk.etaMayChange")}
                         </small>
                       </div>
                     </div>
